@@ -3,7 +3,7 @@ import joblib
 import numpy as np 
 
 # Muat model KNN dan scaler
-knn = joblib.load('model_knn.pkl')
+knn = joblib.load('knn_model.pkl')
 scaler = joblib.load('scaler.pkl')
 
 # Inisialisasi kamera
