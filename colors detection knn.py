@@ -7,14 +7,14 @@ knn = joblib.load('model_knn.pkl')
 scaler = joblib.load('scaler.pkl')
 
 # Muat dataset uji jika tersedia
-X_test = joblib.load('X_test.pkl')  # Data fitur uji
+x_test = joblib.load('x_test.pkl')  # Data fitur uji
 y_test = joblib.load('y_test.pkl')  # Label uji
 
 # Normalisasi data uji
-X_test_scaled = scaler.transform(X_test)
+x_test_scaled = scaler.transform(x_test)
 
 # Hitung akurasi model
-accuracy = knn.score(X_test_scaled, y_test)
+accuracy = knn.score(x_test_scaled, y_test)
 print(f"Model Accuracy: {accuracy:.2%}")
 
 # Inisialisasi kamera

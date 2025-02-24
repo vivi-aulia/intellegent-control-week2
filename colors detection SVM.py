@@ -10,30 +10,40 @@ from sklearn.metrics import accuracy_score
 # ==========================
 # 1. MUAT DAN SIAPKAN DATASET
 # ==========================
-# Bisa gunakan dataset lain dari Kaggle
-dataset_path = "colors_dataset.csv"  # Ganti dengan dataset dari Kaggle jika ada
-df = pd.read_csv(dataset_path)
+dataset_path = "colors.csv"  # Ganti dengan dataset dari Kaggle jika ada
 
-# Pastikan dataset memiliki kolom 'R', 'G', 'B', dan 'color_name'
-X = df[['R', 'G', 'B']].values
+# Pastikan dataset tersedia
+try:
+    df = pd.read_csv(dataset_path)
+except FileNotFoundError:
+    print(f"Error: File {dataset_path} tidak ditemukan.")
+    exit()
+
+# Pastikan dataset memiliki kolom yang dibutuhkan
+if not {'R', 'G', 'B', 'color_name'}.issubset(df.columns):
+    print("Error: Dataset tidak memiliki kolom yang dibutuhkan (R, G, B, color_name).")
+    exit()
+
+# Ambil fitur RGB dan label warna
+x = df[['R', 'G', 'B']].values
 y = df['color_name'].values
 
 # Split dataset untuk pelatihan dan pengujian
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
 # Normalisasi data
 scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+x_train_scaled = scaler.fit_transform(x_train)
+x_test_scaled = scaler.transform(x_test)
 
 # ==========================
 # 2. LATIH MODEL SVM
 # ==========================
-# GridSearchCV untuk mencari parameter terbaik
+# Hyperparameter tuning dengan GridSearchCV
 param_grid = {'C': [1, 10, 100], 'gamma': ['scale', 'auto', 0.01, 0.1, 1], 'kernel': ['rbf']}
 svm = SVC()
-grid_search = GridSearchCV(svm, param_grid, cv=5)
-grid_search.fit(X_train_scaled, y_train)
+grid_search = GridSearchCV(svm, param_grid, cv=5, n_jobs=-1, verbose=1)
+grid_search.fit(x_train_scaled, y_train)
 
 # Simpan model terbaik
 best_svm = grid_search.best_estimator_
@@ -43,7 +53,7 @@ joblib.dump(scaler, 'scaler.pkl')
 # ==========================
 # 3. HITUNG AKURASI MODEL
 # ==========================
-y_pred = best_svm.predict(X_test_scaled)
+y_pred = best_svm.predict(x_test_scaled)
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Model Accuracy: {accuracy:.2%}")
 
@@ -66,10 +76,10 @@ if not cap.isOpened():
 
 while True:
     ret, frame = cap.read()
-    if not ret        print("Error: Could not read frame.")
+    if not ret:
+        print("Error: Could not read frame.")
         break
-    
-    # Ambil beberapa titik untuk mendeteksi lebih dari satu warna
+
     height, width, _ = frame.shape
     points = [
         (width // 4, height // 4),  # Kiri atas
@@ -82,15 +92,16 @@ while True:
     detected_colors = []
 
     for (x, y) in points:
-        roi = frame[y-2:y+3, x-2:x+3]  # Ambil area kecil sekitar titik
-        pixel_avg = np.mean(roi, axis=(0, 1)).astype(int)  # Hitung rata-rata RGB
-        
-        # Normalisasi warna sebelum prediksi
-        pixel_scaled = scaler.transform([pixel_avg.reshape(-1)])
-        color_pred = svm.predict(pixel_scaled)[0]
+        if 2 <= x < width-2 and 2 <= y < height-2:  # Cegah error jika titik keluar dari batas gambar
+            roi = frame[y-2:y+3, x-2:x+3]  # Ambil area kecil sekitar titik
+            pixel_avg = np.mean(roi, axis=(0, 1)).astype(int)  # Hitung rata-rata RGB
+            
+            # Normalisasi warna sebelum prediksi
+            pixel_scaled = scaler.transform([pixel_avg.reshape(-1)])
+            color_pred = svm.predict(pixel_scaled)[0]
 
-        detected_colors.append(color_pred)
-        cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)  # Tandai titik
+            detected_colors.append(color_pred)
+            cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)  # Tandai titik
 
     # Tampilkan warna yang terdeteksi
     colors_text = ", ".join(detected_colors)
