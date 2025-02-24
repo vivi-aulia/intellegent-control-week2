@@ -109,15 +109,15 @@ while True:
     
     # Tampilkan prediksi dan akurasi real-time
     cv2.putText(frame, f'Color1: {color_pred_1} | Acc1: {realtime_accuracy_1:.2f}%', (10, 30), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (150, 255, 150), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (250,235,215), 2)
     cv2.putText(frame, f'Color2: {color_pred_2} | Acc2: {realtime_accuracy_2:.2f}%', (10, 60), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 150, 150), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (250,235,215), 2)
     
     # Gambar bounding box pada frame dengan keterangan
-    cv2.rectangle(frame, (x1, y1), (x1+box_size, y1+box_size), (255, 0, 0), 2)
-    cv2.rectangle(frame, (x2, y2), (x2+box_size, y2+box_size), (0, 0, 255), 2)
-    cv2.putText(frame, "Color 1", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-    cv2.putText(frame, "Color 2", (x2, y2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.rectangle(frame, (x1, y1), (x1+box_size, y1+box_size), (250,235,215), 2)
+    cv2.rectangle(frame, (x2, y2), (x2+box_size, y2+box_size), (250,235,215), 2)
+    cv2.putText(frame, "Color 1", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (250,235,215), 2)
+    cv2.putText(frame, "Color 2", (x2, y2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (250,235,215), 2)
     
     print(f'Color1: {color_pred_1} | Acc1: {realtime_accuracy_1:.2f}%')
     print(f'Color2: {color_pred_2} | Acc2: {realtime_accuracy_2:.2f}%')
