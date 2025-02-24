@@ -1,11 +1,6 @@
 import cv2
 import joblib
 import numpy as np
-import pandas as pd
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score
 
 # ==========================
 # 1. MUAT DAN SIAPKAN DATASET
@@ -41,8 +36,12 @@ x_test_scaled = scaler.transform(x_test)
 # ==========================
 # Hyperparameter tuning dengan GridSearchCV
 param_grid = {'C': [1, 10, 100], 'gamma': ['scale', 'auto', 0.01, 0.1, 1], 'kernel': ['rbf']}
+
+# Gunakan StratifiedKFold untuk memastikan distribusi kelas yang seimbang
+cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+
 svm = SVC()
-grid_search = GridSearchCV(svm, param_grid, cv=5, n_jobs=-1, verbose=1)
+grid_search = GridSearchCV(svm, param_grid, cv=cv, n_jobs=-1, verbose=1)
 grid_search.fit(x_train_scaled, y_train)
 
 # Simpan model terbaik
